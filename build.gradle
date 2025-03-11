@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 🌟 필수 라이브러리
+    implementation("org.springframework.boot:spring-boot-starter-web") // REST API용 기본 스타터
+    implementation("org.springframework.boot:spring-boot-starter-validation") // Request 검증
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA 사용 (MySQL)
+
+    // ✅ Lombok (코드 간결화)
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // ✅ Database Driver
+    runtimeOnly("com.mysql:mysql-connector-j") // MySQL
+    // runtimeOnly("org.postgresql:postgresql") // PostgreSQL 선택 가능
+
+    // ✅ Redis (Auth, Cart 서비스에서 사용)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // ✅ JWT (Auth 서비스에서 사용)
+    implementation("io.jsonwebtoken:jjwt:0.11.5")
+
+    // ✅ Kafka or RabbitMQ (Order 서비스 이벤트 처리)
+    implementation("org.springframework.kafka:spring-kafka") // Kafka
+    // implementation("org.springframework.boot:spring-boot-starter-amqp") // RabbitMQ
+
+    // ✅ Spring Security (Auth 및 User 서비스)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // ✅ DevTools (개발 편의를 위한 핫 리로드)
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    // ✅ 테스트 관련
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
