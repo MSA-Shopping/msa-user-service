@@ -24,11 +24,12 @@ public class User extends Timestamped {
     private UserRole role;
 
     @Builder
-    public User(Long id, String username, String email, String password, String phoneNumber) {
+    public User(Long id, String username, String email, String password, String phoneNumber, UserRole role) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.role = role;
     }
 }

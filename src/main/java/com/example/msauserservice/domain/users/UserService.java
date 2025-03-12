@@ -1,6 +1,7 @@
 package com.example.msauserservice.domain.users;
 
 import com.example.msauserservice.domain.users.dto.SignupRequestDto;
+import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,7 @@ public class UserService {
                 .email(requestDto.getEmail())
                 .password(requestDto.getPassword())
                 .phoneNumber(requestDto.getPhoneNumber())
+                .role(UserRole.USER)
                 .build();
 
         // User가 이미 존재하는지 확인
