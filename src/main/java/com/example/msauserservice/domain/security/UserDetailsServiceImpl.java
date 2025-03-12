@@ -1,8 +1,10 @@
 package com.example.msauserservice.domain.security;
 
 
-import com.example.dostep.domain.employee.EmployeeRepository;
-import com.example.dostep.domain.employee.model.Employee;
+import com.example.msauserservice.domain.users.User;
+import com.example.msauserservice.domain.users.UserRepository;
+import com.example.msauserservice.global.exception.CustomException;
+import com.example.msauserservice.global.exception.ErrorCode;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,18 +12,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
 
-    public UserDetailsServiceImpl(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Employee employee = employeeRepository.findByAccountUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다: " + username)
+        User user = userRepository.findByEmail(username).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
-        return new UserDetailsImpl(employee);
+        return new UserDetailsImpl(user);
     }
 }
