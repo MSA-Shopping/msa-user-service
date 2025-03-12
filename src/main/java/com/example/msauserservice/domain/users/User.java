@@ -1,10 +1,8 @@
 package com.example.msauserservice.domain.users;
 
 import com.example.msauserservice.global.Timestamped;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.msauserservice.global.UserRole;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +19,9 @@ public class User extends Timestamped {
     private String email;
     private String password;
     private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Builder
     public User(Long id, String username, String email, String password, String phoneNumber) {
