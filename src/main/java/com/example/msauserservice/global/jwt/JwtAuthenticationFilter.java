@@ -1,5 +1,7 @@
 package com.example.msauserservice.global.jwt;
 
+import com.example.msauserservice.domain.users.UserRepository;
+import com.example.msauserservice.domain.users.dto.LoginRequestDto;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +19,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 
+
 @Slf4j(topic = "JwtAuthenticationFilter")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, EmployeeRepository employeeRepository) {
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtUtil jwtUtil) {
         super.setAuthenticationManager(authenticationManager);
-        this.employeeRepository = employeeRepository;
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
 
         setFilterProcessesUrl("/api/auth/login");
     }
@@ -33,7 +40,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(requestDto.getUsername(), requestDto.getPassword(), null)
+                    new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword(), null)
             );
         } catch (IOException e) {
             log.error("로그인 시 입력값 매핑 실패: {}", e.getMessage());
@@ -45,10 +52,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String username = ((UserDetails) authResult.getPrincipal()).getUsername();
 
-        String accessToken = JwtUtil.createToken(username, JwtUtil.ACCESS_TOKEN_EXPIRATION);
-        String refreshToken = JwtUtil.createToken(username, JwtUtil.REFRESH_TOKEN_EXPIRATION);
+        String accessToken = jwtUtil.createToken(username, JwtUtil.ACCESS_TOKEN_EXPIRATION);
+        String refreshToken = jwtUtil.createToken(username, JwtUtil.REFRESH_TOKEN_EXPIRATION);
 
-        saveRefreshToken(username, refreshToken);
+        //saveRefreshToken(username, refreshToken);
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken); // response header에 access token 넣기
         responseSetting(response, 200, "로그인에 성공하였습니다.");
@@ -57,16 +64,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         log.error("로그인 실패: {}", failed.getMessage());
-        throw new CustomException(ErrorCode.BAD_REQUEST);
+        throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
     }
 
-    private void saveRefreshToken(String username, String refreshToken) {
-        Employee employee = employeeRepository.findByAccountUsername(username).orElseThrow(
-                () -> new CustomException(ErrorCode.EMPLOYEE_NOT_FOUND)
-        );
-        employee.getAccount().setChangedPassword(refreshToken);
-        employeeRepository.save(employee);
-    }
+//    private void saveRefreshToken(String email, String refreshToken) {
+//        User user = userRepository.findByEmail(email).orElseThrow(
+//                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+//        );
+//    }
 
     private void responseSetting(HttpServletResponse response, int statusCode, String message) throws IOException {
         response.setStatus(statusCode);

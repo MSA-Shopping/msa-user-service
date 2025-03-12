@@ -38,10 +38,6 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
     }
 
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
-    }
-
     public static String createToken(String username, Long expiresIn) {
         Date date = new Date(System.currentTimeMillis() + expiresIn);
         return BEARER_PREFIX + Jwts.builder()
@@ -83,7 +79,7 @@ public class JwtUtil {
         }
     }
 
-    public static boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;  // 토큰이 유효함

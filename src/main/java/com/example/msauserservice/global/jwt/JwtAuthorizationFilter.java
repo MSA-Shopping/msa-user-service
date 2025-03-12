@@ -2,6 +2,8 @@ package com.example.msauserservice.global.jwt;
 
 
 import com.example.msauserservice.domain.security.UserDetailsImpl;
+import com.example.msauserservice.domain.users.User;
+import com.example.msauserservice.domain.users.UserRepository;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
@@ -24,7 +26,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -50,11 +52,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    private Authentication createAuthentication(String username) {
-        Employee employee = employeeRepository.findByAccountUsername(username).orElseThrow(
-                () -> new CustomException(ErrorCode.EMPLOYEE_NOT_FOUND)
+    private Authentication createAuthentication(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        UserDetailsImpl userDetailsImpl = new UserDetailsImpl(employee);
+        UserDetailsImpl userDetailsImpl = new UserDetailsImpl(user);
         return new UsernamePasswordAuthenticationToken(userDetailsImpl, null, userDetailsImpl.getAuthorities());
     }
 
@@ -64,20 +66,20 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.getWriter().write(e.getMessage());
     }
 
-    private void updateAccessToken(HttpServletResponse response, String token) throws IOException {
-        String username = JwtUtil.getUserInfoFromToken(token).getSubject();
-        Employee employee = employeeRepository.findByAccountUsername(username).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-        );
-
-        String refreshToken = employee.getAccount().getChangedPassword();  // 예시 필드명
-        if (refreshToken != null && JwtUtil.isTokenValid(refreshToken)) {
-            String newAccessToken = JwtUtil.createToken(employee.getAccount().getUsername(), JwtUtil.ACCESS_TOKEN_EXPIRATION);
-            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, "Bearer " + newAccessToken);
-        } else {
-            response.setStatus(401);
-            response.setContentType("text/plain;charset=UTF-8");
-            response.getWriter().write("Refresh 토큰이 유효하지 않거나 만료되었습니다.");
-        }
-    }
+//    private void updateAccessToken(HttpServletResponse response, String token) throws IOException {
+//        String username = JwtUtil.getUserInfoFromToken(token).getSubject();
+//        User user = userRepository.findByEmail(username).orElseThrow(
+//                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+//        );
+//
+//        String refreshToken = user.getAccount().getChangedPassword();  // 예시 필드명
+//        if (refreshToken != null && JwtUtil.isTokenValid(refreshToken)) {
+//            String newAccessToken = JwtUtil.createToken(user.getAccount().getUsername(), JwtUtil.ACCESS_TOKEN_EXPIRATION);
+//            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, "Bearer " + newAccessToken);
+//        } else {
+//            response.setStatus(401);
+//            response.setContentType("text/plain;charset=UTF-8");
+//            response.getWriter().write("Refresh 토큰이 유효하지 않거나 만료되었습니다.");
+//        }
+//    }
 }
