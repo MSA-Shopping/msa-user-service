@@ -1,9 +1,12 @@
 package com.example.msauserservice.domain.users;
 
+import com.example.msauserservice.domain.users.dto.LoginRequestDto;
+import com.example.msauserservice.domain.users.dto.LoginResponseDto;
 import com.example.msauserservice.domain.users.dto.SignupRequestDto;
 import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
+import com.example.msauserservice.global.jwt.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,5 +33,18 @@ public class UserService {
         } else {
             throw new CustomException(ErrorCode.CONFLICT_USER);
         }
+    }
+
+    @Transactional
+    public LoginResponseDto login(LoginRequestDto requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getPassword().equals(requestDto.getPassword())) {
+            throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        String token = JwtUtil.createToken(user.getUsername(), JwtUtil.ACCESS_TOKEN_EXPIRATION);
+        return new LoginResponseDto(token, "로그인 성공");
     }
 }
