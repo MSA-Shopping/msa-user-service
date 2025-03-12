@@ -23,10 +23,10 @@ public class UserService {
                 .build();
 
         // User가 이미 존재하는지 확인
-        if(userRepository.findByEmail(newUser.getEmail()) != null) {
-            throw new CustomException(ErrorCode.CONFLICT_USER);
-        } else {
+        if(userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
             userRepository.save(newUser);
+        } else {
+            throw new CustomException(ErrorCode.CONFLICT_USER);
         }
     }
 }
