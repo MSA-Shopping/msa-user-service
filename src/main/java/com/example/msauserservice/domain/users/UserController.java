@@ -30,16 +30,12 @@ public class UserController {
     }
 
     // auth 에서 email 조회
-    @GetMapping("/users/email")
-    public ResponseEntity<CommonResponse<UserDto>> findUserByEmail(@RequestBody EmailRequestDto requestDto) {
+    @PostMapping("/users/email")
+    public UserDto findUserByEmail(@RequestBody EmailRequestDto requestDto) {
         try {
-            String email = requestDto.getEmail();
-            UserDto responseDto = userService.findEmail(email);
-            CommonResponse response = new CommonResponse("이메일 조회 성공", 200, responseDto);
-            return ResponseEntity.ok(response);
+            return userService.findEmail(requestDto.getEmail());
         } catch (CustomException e) {
-            CommonResponse response = new CommonResponse("이메일 조회 실패", e.getStatusCode().value(), e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            throw e;
         }
     }
 }
