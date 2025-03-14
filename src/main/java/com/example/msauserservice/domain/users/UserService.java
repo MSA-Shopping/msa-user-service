@@ -6,6 +6,7 @@ import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void signup(SignupRequestDto requestDto) {
         // 저장하기 전 User 객체 생성
+
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
         User newUser = User.builder()
                 .username(requestDto.getUsername())
                 .email(requestDto.getEmail())
-                .password(requestDto.getPassword())
+                .password(encodedPassword)
                 .phoneNumber(requestDto.getPhoneNumber())
                 .role(UserRole.USER)
                 .build();
