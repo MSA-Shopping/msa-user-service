@@ -46,6 +46,7 @@ public class UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().toString())
                 .build();
