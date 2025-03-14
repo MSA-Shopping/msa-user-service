@@ -1,6 +1,7 @@
 package com.example.msauserservice.domain.users;
 
 import com.example.msauserservice.domain.users.dto.SignupRequestDto;
+import com.example.msauserservice.domain.users.dto.UserDto;
 import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
@@ -30,5 +31,18 @@ public class UserService {
         } else {
             throw new CustomException(ErrorCode.CONFLICT_USER);
         }
+    }
+
+    public UserDto findEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().toString())
+                .build();
     }
 }
