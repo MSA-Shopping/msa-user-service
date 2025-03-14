@@ -5,9 +5,9 @@ import com.example.msauserservice.domain.users.dto.UserDto;
 import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +33,7 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public UserDto findEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
