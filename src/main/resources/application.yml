@@ -2,6 +2,9 @@ server:
   port: 8081
 
 spring:
+  application:
+    name: user-service
+
   datasource:
     url: jdbc:mysql://localhost:3307/user_db
     # url: jdbc:mysql://user-db:3306/user_db # For Docker
