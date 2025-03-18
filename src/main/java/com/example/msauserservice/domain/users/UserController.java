@@ -8,8 +8,8 @@ import com.example.msauserservice.global.exception.CustomException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,9 +42,14 @@ public class UserController {
 
     // gateway를 통해 발급된 인증 객체로 인증해야 함
     @GetMapping("/users/needtoken")
-    public ResponseEntity<CommonResponse> needToken(@AuthenticationPrincipal String userId) {
+    public Mono<ResponseEntity<CommonResponse>> needToken(@RequestHeader("X-User-Id") String userId) {
+        if (userId == null) {
+            return Mono.just(ResponseEntity.status(401).body(new CommonResponse("인증 실패", 401, "")));
+        }
         CommonResponse response = new CommonResponse("토큰이 필요한 페이지", 200, userId);
-        return ResponseEntity.ok(response);
+        return Mono.just(ResponseEntity.ok(response));
     }
+
+
 
 }
