@@ -48,6 +48,9 @@ dependencies {
 
     // 테스트 관련
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    // RabbitMQ
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
 }
 
 tasks.named('test') {
