@@ -50,6 +50,18 @@ public class UserController {
         return Mono.just(ResponseEntity.ok(response));
     }
 
+    // 삭제
+    @DeleteMapping("/users")
+    public ResponseEntity<CommonResponse> deleteUser(@RequestHeader("X-User-Id") String userId) {
+        try {
+            userService.deleteUser(userId);
+            CommonResponse response = new CommonResponse("삭제 성공", 200, "");
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            CommonResponse response = new CommonResponse("삭제 실패", e.getStatusCode().value(), e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
 
 }
