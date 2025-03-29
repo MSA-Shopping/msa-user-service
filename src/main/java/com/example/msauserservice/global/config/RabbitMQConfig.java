@@ -63,6 +63,13 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding userDeletedBinding(Queue userDeletedQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(userDeletedQueue)
+                .to(exchange)
+                .with(USER_DELETED_ROUTING_KEY);
+    }
+
+    @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
