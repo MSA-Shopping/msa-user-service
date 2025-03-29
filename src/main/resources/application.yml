@@ -18,7 +18,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: guest
     password: guest

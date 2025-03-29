@@ -5,6 +5,7 @@ import com.example.msauserservice.domain.users.dto.UserDto;
 import com.example.msauserservice.global.UserRole;
 import com.example.msauserservice.global.exception.CustomException;
 import com.example.msauserservice.global.exception.ErrorCode;
+import com.example.msauserservice.global.messaging.UserEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final UserEventPublisher eventPublisher;
 
     @Transactional
     public void signup(SignupRequestDto requestDto) {
@@ -50,5 +53,15 @@ public class UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().toString())
                 .build();
+    }
+
+
+    @Transactional
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        userRepository.delete(user);
+        eventPublisher.publishUserDeleted(email);
     }
 }
